@@ -16,9 +16,10 @@ function Assignment() {
             description: description
         });
 
-        
         console.log(data);
-    }
+        setName("");
+        setDate("");
+        setTime("");    }
 
     return(
         <View style={styles.container}>

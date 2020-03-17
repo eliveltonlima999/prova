@@ -41,36 +41,33 @@ function Home() {
         },
     ]);
 
-    const checkSituation = (situation) => {
-        switch(situation) {
-            case "1":
-                return {
-                    color: "green",
-                    msg: "Aberta"
-                };
-            case "2":
-                return {
-                    color: "Yelow",
-                    msg: "Fechada"
-                };
-            case "3":
-                return {
-                    color: "color:red",
-                    msg: "Cancelada"
-                };
-        }
-    }
-
     listAssignment = ({ item }) => (
         <View style={styles.listContainer}>
-            <Text style={styles.name}>{item.name}</Text>
-            <Text><Text style={styles.item}>Data e Hora do Agendamento:</Text> {item.date}:{item.time}</Text>
-            <Text><Text style={styles.item}>Data e Hora da Criação:</Text> {item.dateCreation}:{item.timeCreation}</Text>
-            <Text><Text style={styles.item}>Data e Hora da Atualização:</Text> {item.dateUpdate}:{item.timeUpdate}</Text>
-            <>
-            
-            </>
-            <Text style={styles.description}>{item.description}</Text>
+            <Text style={styles.name}>
+                {item.name}
+            </Text>
+            <Text>
+                <Text style={styles.item}>Data e Hora do Agendamento: </Text> 
+                {item.date} {item.time}
+            </Text>
+            <Text>
+                <Text style={styles.item}>Data e Hora da Criação: </Text> 
+                {item.dateCreation} {item.timeCreation}
+            </Text>
+            <Text>
+                <Text style={styles.item}>Data e Hora da Atualização: </Text> 
+                {item.dateUpdate} {item.timeUpdate}
+            </Text>
+            <Text>
+                <Text style={styles.item}>Situação: </Text> 
+                { 
+                     item.situation == 1 ? "Aberto": item.situation == 2 ? "Fechado":item.situation == 3 ? "Cancelado":""
+                }
+            </Text>
+            <Text style={styles.item}>
+                Descrição:  
+                <Text style={styles.description}>{item.description}</Text>
+            </Text>
         </View>
     );
 
@@ -112,7 +109,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: "#999",
         marginTop: 5,
-        lineHeight: 24
+        lineHeight: 24,
     },
     item: {
         fontWeight: "bold"
