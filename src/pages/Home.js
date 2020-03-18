@@ -1,45 +1,57 @@
-import React, { useState } from "react";
+import React, { Component } from "react";
+import AsyncStorage from '@react-native-community/async-storage';
 import { View, Text, StyleSheet, FlatList } from "react-native";
 
-function Home() {
-    const [assignment, setAssignment] = useState([
-        {
-            id: 1,
-            name: "Estudar",
-            date: "31/07/1998",
-            time: "15:00",
-            dateCreation: "30/07/1998",
-            timeCreation: "14:00", 
-            dateUpdate: "31/17/1998",
-            timeUpdate: "14:00",
-            description: "Estudar React native.",
-            situation: 1
-        },
-        {
-            id: 2,
-            name: "Treinar",
-            date: "31/07/1998",
-            time: "15:00",
-            dateCreation: "30/07/1998",
-            timeCreation: "14:00", 
-            dateUpdate: "31/17/1998",
-            timeUpdate: "14:00",
-            description: "Treinar ReactJS.",
-            situation: 2
-        },
-        {
-            id: 3,
-            name: "Dar uma olhada",
-            date: "31/07/1998",
-            time: "15:00",
-            dateCreation: "30/07/1998",
-            timeCreation: "14:00", 
-            dateUpdate: "31/17/1998",
-            timeUpdate: "14:00",
-            description: "Dar uma olhada na linguagem JavaScript.",
-            situation: 3
-        },
-    ]);
+export default class Home extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            assignment: []
+        };
+    }
+    
+    static navigationsOptions = {
+        title: "Tarefas"
+    }
+
+    componentDidMount() {
+        this.loadAssignment();
+    }
+
+    loadAssignment = () => {
+        var assignment = {
+            name: "",
+            date: "",
+            time: "",
+            createDate: "",
+            createTime: ""
+        }
+        
+        AsyncStorage.getItem("tarefa", (err, value) => {
+            let values = JSON.parse(value);
+            assignment.name = values.name;
+            assignment.date = values.date;
+            assignment.time = values.time;
+            assignment.createDate = values.createDate;
+            assignment.createTime = values.createTime;
+        });
+        // console.log(assignment);
+
+        // this.setState([...this.state.assignment, ...assignment]);
+        console.log(this.state.assignment);
+        // AsyncStorage.multiRemove(["tarefas"]);
+
+        
+        // AsyncStorage.getAllKeys((err, keys) => {
+        //     AsyncStorage.multiGet(keys, (err, stores) => {
+        //         stores.map((result, i, store) => {
+        //             console.log(stores);
+        //         });
+        //     });
+        // });
+        // console.log(search);
+        // this.setState([...this.state.assignments]);
+    }
 
     listAssignment = ({ item }) => (
         <View style={styles.listContainer}>
@@ -55,10 +67,6 @@ function Home() {
                 {item.dateCreation} {item.timeCreation}
             </Text>
             <Text>
-                <Text style={styles.item}>Data e Hora da Atualização: </Text> 
-                {item.dateUpdate} {item.timeUpdate}
-            </Text>
-            <Text>
                 <Text style={styles.item}>Situação: </Text> 
                 { 
                      item.situation == 1 ? "Aberto": item.situation == 2 ? "Fechado":item.situation == 3 ? "Cancelado":""
@@ -71,17 +79,19 @@ function Home() {
         </View>
     );
 
-    return(
-        <View style={styles.container}>
-            <FlatList 
-                contentContainerStyle={styles.list} 
-                data={assignment} 
-                keyExtractor={ item => item.id.toString() } 
-                renderItem={listAssignment}
-            />
-        </View>
-    );
-}
+    render() {
+        return(
+            <View style={styles.container}>
+                <FlatList 
+                    contentContainerStyle={styles.list} 
+                    data={this.state.assignment} 
+                    keyExtractor={ item => item.id.toString() } 
+                    renderItem={this.listAssignment}
+                />
+            </View>
+        );
+    }
+};
 
 const styles = StyleSheet.create({
     container: {
@@ -114,6 +124,4 @@ const styles = StyleSheet.create({
     item: {
         fontWeight: "bold"
     }
-})
-
-export default Home;
+});
