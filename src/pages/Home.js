@@ -3,12 +3,9 @@ import AsyncStorage from '@react-native-community/async-storage';
 import { View, Text, StyleSheet, FlatList } from "react-native";
 
 export default class Home extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            assignment: []
-        };
-    }
+    state = {
+        assignments: []
+    };
     
     static navigationsOptions = {
         title: "Tarefas"
@@ -18,74 +15,81 @@ export default class Home extends Component {
         this.loadAssignment();
     }
 
-    loadAssignment = () => {
-        var assignment = {
-            name: "",
-            date: "",
-            time: "",
-            createDate: "",
-            createTime: ""
+    componentDidUpdate(prevProps, prevState) {
+        if (prevState.assignments !== this.state.assignments) {
+            this.listAssignment(this.state.assignments);
         }
-        
-        AsyncStorage.getItem("tarefa", (err, value) => {
-            let values = JSON.parse(value);
-            assignment.name = values.name;
-            assignment.date = values.date;
-            assignment.time = values.time;
-            assignment.createDate = values.createDate;
-            assignment.createTime = values.createTime;
+    }
+
+    loadAssignment = async () => {
+        await AsyncStorage.getItem("tarefa", (err, values) => {
+            let value = JSON.parse(values);
+            this.setState(prevState => ({
+                assignments: [
+                    ...prevState.assignments,
+                    ...value
+                ]
+            }));
         });
-        // console.log(assignment);
 
-        // this.setState([...this.state.assignment, ...assignment]);
-        console.log(this.state.assignment);
-        // AsyncStorage.multiRemove(["tarefas"]);
-
+        // console.log(this.state);
         
         // AsyncStorage.getAllKeys((err, keys) => {
         //     AsyncStorage.multiGet(keys, (err, stores) => {
-        //         stores.map((result, i, store) => {
-        //             console.log(stores);
-        //         });
+                // stores.map((result, i, store) => {
+                    // console.log(stores);
+                // });
         //     });
         // });
-        // console.log(search);
-        // this.setState([...this.state.assignments]);
+
     }
 
-    listAssignment = ({ item }) => (
-        <View style={styles.listContainer}>
-            <Text style={styles.name}>
-                {item.name}
-            </Text>
-            <Text>
-                <Text style={styles.item}>Data e Hora do Agendamento: </Text> 
-                {item.date} {item.time}
-            </Text>
-            <Text>
-                <Text style={styles.item}>Data e Hora da Criação: </Text> 
-                {item.dateCreation} {item.timeCreation}
-            </Text>
-            <Text>
-                <Text style={styles.item}>Situação: </Text> 
-                { 
-                     item.situation == 1 ? "Aberto": item.situation == 2 ? "Fechado":item.situation == 3 ? "Cancelado":""
-                }
-            </Text>
-            <Text style={styles.item}>
-                Descrição:  
-                <Text style={styles.description}>{item.description}</Text>
-            </Text>
-        </View>
-    );
+    checkSituation = (date) => {
+        let newDate = date.replace(/[^\w\-]+/g, '-');
+        let dateFinish = newDate.split('').reverse().join('');
+
+        let situation = new Date(dateFinish).getTime() >= new Date().getTime() ? "Aberto": "Fechado"
+
+        return situation;
+    }
+
+    listAssignment = ({ item }) => {
+        console.log(this.state.assignments);
+        console.log(item);
+    }
+    // (
+    //     <View style={styles.listContainer}>
+    //         <Text style={styles.name}>
+    //             {item.name}
+    //         </Text>
+    //         <Text>
+    //             <Text style={styles.item}>Data e Hora do Agendamento: </Text> 
+    //             {item.date} {item.time}
+    //         </Text>
+    //         <Text>
+    //             <Text style={styles.item}>Data e Hora da Criação: </Text>  
+    //             {item.createDate} {item.createTime}
+    //         </Text>
+    //         <Text>
+    //             <Text style={styles.item}>Situação: </Text> 
+    //             { 
+    //                 this.checkSituation(item.date)
+    //             }
+    //         </Text>
+    //         <Text style={styles.item}>
+    //             Descrição:   
+    //             <Text style={styles.description}> {item.description}</Text>
+    //         </Text>
+    //     </View>
+    // );
 
     render() {
         return(
             <View style={styles.container}>
                 <FlatList 
                     contentContainerStyle={styles.list} 
-                    data={this.state.assignment} 
-                    keyExtractor={ item => item.id.toString() } 
+                    data={this.state.assignments} 
+                    keyExtractor={ item => item.name.toString() } 
                     renderItem={this.listAssignment}
                 />
             </View>
@@ -123,5 +127,10 @@ const styles = StyleSheet.create({
     },
     item: {
         fontWeight: "bold"
+    },
+    textInit: {
+        justifyContent: "center",
+        alignItems: "center",
+        fontSize: 20
     }
 });

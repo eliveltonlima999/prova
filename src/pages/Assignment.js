@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import InputMask from "react-native-text-input-mask"
 import AsyncStorage from '@react-native-community/async-storage';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Keyboard } from "react-native";
 
@@ -23,13 +24,27 @@ export default class Assignment extends  Component {
                 return;
             }
 
-            const result = await AsyncStorage.setItem("tarefa", JSON.stringify(this.state));
+            let search = await AsyncStorage.getItem("tarefa");
+            
+            if (!search) {
+                var result = await AsyncStorage.setItem("tarefa", JSON.stringify([this.state]));
+            } else {
+                let newSeach = JSON.parse(search);
+                let storageAssignment = [...newSeach, this.state];
+                var result = await AsyncStorage.setItem("tarefa", JSON.stringify(storageAssignment));
+            }
+            
             if (result == null) {
                 this.setState({ name: ""});
                 this.setState({ date: ""});
+                this.setState({ time: ""});
                 this.setState({ description: ""});
+
+                Keyboard.dismiss();
+                
                 alert("Cadastro Ralizado Com Sucesso!");
             } else {
+                alert("Ops! Não foi possível cadastrar seus dados.");
                 console.log(result);   
             }
         } catch (error) {
@@ -47,8 +62,26 @@ export default class Assignment extends  Component {
                     </Text>
                     <>
                         <TextInput style={styles.formInputs} placeholder="Nome" onChangeText={(text) => this.setState({name: text})} value={this.state.name} />
-                        <TextInput style={styles.formInputs} placeholder="Data" onChangeText={(text) => this.setState({date: text})} value={this.state.date} />
-                        <TextInput style={styles.formInputs} placeholder="Hora" onChangeText={(text) => this.setState({time: text})} value={this.state.time} />
+                        {/* <TextInput style={styles.formInputs} placeholder="Data" onChangeText={(text) => this.setState({date: text})} value={this.state.date} /> */}
+                        <InputMask 
+                            placeholder="Data"
+                            style={styles.formInputs} 
+                            mask={"[00]/[00]/[0000]"} 
+                            value={this.state.date}
+                            onChangeText={(text) => {
+                                this.setState({ date: text });
+                            }}
+                        />
+                        <InputMask 
+                            placeholder="Hora" 
+                            style={styles.formInputs} 
+                            mask={"[00]:[00]"} 
+                            value={this.state.time}
+                            onChangeText={(text) => {
+                                this.setState({time: text})
+                            }} 
+                             
+                            />
                         <TextInput style={styles.formTextearea} placeholder="Descrição" multiline onChangeText={(text) => this.setState({description: text})} value={this.state.description} /> 
                         <TouchableOpacity style={styles.formButton} onPress={this.save}>
                             <Text style={styles.formButtonText}>Salvar</Text>
