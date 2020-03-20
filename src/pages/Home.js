@@ -6,31 +6,33 @@ export default class Home extends Component {
     state = {
         assignments: []
     };
-    
-    static navigationsOptions = {
-        title: "Tarefas"
-    }
 
     componentDidMount() {
         this.loadAssignment();
     }
 
     componentDidUpdate(prevProps, prevState) {
-        if (prevState.assignments !== this.state.assignments) {
-            this.listAssignment(this.state.assignments);
+        if (prevState.assignments.length > 0) {
+            this.loadAssignment(); 
         }
     }
 
     loadAssignment = async () => {
-        await AsyncStorage.getItem("tarefa", (err, values) => {
-            let value = JSON.parse(values);
-            this.setState(prevState => ({
-                assignments: [
-                    ...prevState.assignments,
-                    ...value
-                ]
-            }));
-        });
+        try {
+            await AsyncStorage.getItem("tarefa", (err, values) => {
+                if (values !== null) {
+                    let value = JSON.parse(values);
+                    this.setState({
+                        assignments: [
+                            ...value
+                        ]
+                    });
+                }
+            });
+        } catch (erro) {
+            console.log(erro);
+        }
+        
 
         // console.log(this.state);
         
@@ -53,35 +55,31 @@ export default class Home extends Component {
         return situation;
     }
 
-    listAssignment = ({ item }) => {
-        console.log(this.state.assignments);
-        console.log(item);
-    }
-    // (
-    //     <View style={styles.listContainer}>
-    //         <Text style={styles.name}>
-    //             {item.name}
-    //         </Text>
-    //         <Text>
-    //             <Text style={styles.item}>Data e Hora do Agendamento: </Text> 
-    //             {item.date} {item.time}
-    //         </Text>
-    //         <Text>
-    //             <Text style={styles.item}>Data e Hora da Criação: </Text>  
-    //             {item.createDate} {item.createTime}
-    //         </Text>
-    //         <Text>
-    //             <Text style={styles.item}>Situação: </Text> 
-    //             { 
-    //                 this.checkSituation(item.date)
-    //             }
-    //         </Text>
-    //         <Text style={styles.item}>
-    //             Descrição:   
-    //             <Text style={styles.description}> {item.description}</Text>
-    //         </Text>
-    //     </View>
-    // );
+    listAssignment = ({ item }) => (
+        <View style={styles.listContainer}>
+            <Text style={styles.name}>
+                {item.name}
+            </Text>
+            <Text>
+                <Text style={styles.item}>Data e Hora do Agendamento: </Text> 
+                {item.date} {item.time}
+            </Text>
+            <Text>
+                <Text style={styles.item}>Data e Hora da Criação: </Text>  
+                {item.createDate} {item.createTime}
+            </Text>
+            <Text>
+                <Text style={styles.item}>Situação: </Text> 
+                { 
+                    this.checkSituation(item.date)
+                }
+            </Text>
+            <Text style={styles.item}>
+                Descrição:   
+                <Text style={styles.description}> {item.description}</Text>
+            </Text>
+        </View>
+    );
 
     render() {
         return(
@@ -90,7 +88,9 @@ export default class Home extends Component {
                     contentContainerStyle={styles.list} 
                     data={this.state.assignments} 
                     keyExtractor={ item => item.name.toString() } 
-                    renderItem={this.listAssignment}
+                    renderItem={this.listAssignment} 
+                    onEndReached={this.loadAssignment} 
+                    onEndReachedThreshold={0.1}
                 />
             </View>
         );
@@ -128,9 +128,12 @@ const styles = StyleSheet.create({
     item: {
         fontWeight: "bold"
     },
-    textInit: {
+    containerInit: {
+        flex: 1,
         justifyContent: "center",
         alignItems: "center",
+    },
+    textInit: {
         fontSize: 20
     }
 });

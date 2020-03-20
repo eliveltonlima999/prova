@@ -62,7 +62,6 @@ export default class Assignment extends  Component {
                     </Text>
                     <>
                         <TextInput style={styles.formInputs} placeholder="Nome" onChangeText={(text) => this.setState({name: text})} value={this.state.name} />
-                        {/* <TextInput style={styles.formInputs} placeholder="Data" onChangeText={(text) => this.setState({date: text})} value={this.state.date} /> */}
                         <InputMask 
                             placeholder="Data"
                             style={styles.formInputs} 
