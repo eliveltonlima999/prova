@@ -11,29 +11,26 @@ export default class Home extends Component {
         this.loadAssignment();
     }
 
-    componentDidUpdate(prevProps, prevState) {
-        if (prevState.assignments.length > 0) {
-            this.loadAssignment(); 
-        }
+    componentWillUpdate(nextProps, nextState) {
+        this.loadAssignment(); 
     }
 
     loadAssignment = async () => {
         try {
-            await AsyncStorage.getItem("tarefa", (err, values) => {
-                if (values !== null) {
-                    let value = JSON.parse(values);
-                    this.setState({
-                        assignments: [
-                            ...value
-                        ]
-                    });
-                }
-            });
+            let result = await AsyncStorage.getItem("tarefa");
+            if (result !== null) {
+                this.setState({
+                    assignments: JSON.parse(result)
+                });
+            } else {
+                this.setState({
+                    assignments: [...this.state.assignments]
+                });
+            }
         } catch (erro) {
             console.log(erro);
         }
-        
-
+    
         // console.log(this.state);
         
         // AsyncStorage.getAllKeys((err, keys) => {
@@ -43,7 +40,6 @@ export default class Home extends Component {
                 // });
         //     });
         // });
-
     }
 
     checkSituation = (date) => {
@@ -81,6 +77,16 @@ export default class Home extends Component {
         </View>
     );
 
+    renderInit() {
+        return ( 
+            <View style={styles.containerInit}>
+                <Text style={styles.textInit}>
+                    Sua lista de tarefas está vazia.
+                </Text>
+            </View>
+        )
+    }
+
     render() {
         return(
             <View style={styles.container}>
@@ -90,7 +96,8 @@ export default class Home extends Component {
                     keyExtractor={ item => item.name.toString() } 
                     renderItem={this.listAssignment} 
                     onEndReached={this.loadAssignment} 
-                    onEndReachedThreshold={0.1}
+                    onEndReachedThreshold={0.1} 
+                    ListEmptyComponent={this.renderInit} 
                 />
             </View>
         );
@@ -100,7 +107,7 @@ export default class Home extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#fafafa"
+        backgroundColor: "#fafafa",
     },
     list: {
         padding: 20
@@ -129,7 +136,6 @@ const styles = StyleSheet.create({
         fontWeight: "bold"
     },
     containerInit: {
-        flex: 1,
         justifyContent: "center",
         alignItems: "center",
     },
