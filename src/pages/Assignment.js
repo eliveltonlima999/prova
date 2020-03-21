@@ -15,7 +15,7 @@ export default class Assignment extends  Component {
         name: "", 
         date: "", 
         time: "", 
-        situation: null,
+        situation: "",
         createDate: this.createDate,
         createTime: this.createTime,
         description: ""
@@ -110,10 +110,39 @@ export default class Assignment extends  Component {
         }
     }
 
+    checkDateSituation = (date) => {
+        try {
+            let newDate = date.split("/");
+            let yearSchedule = newDate[2];
+            let monthShedule = newDate[1];
+            let dateShedule = newDate[0];
+            let dateSheduleFinish = new Date(yearSchedule, monthShedule, dateShedule);
+
+            let yearCurrent = new Date().getFullYear();
+            let monthCurrent = new Date().getMonth() + 1;
+            let dateCurrent = new Date().getDate();
+            let dateCurrentFinish = new Date(yearCurrent, monthCurrent, dateCurrent);
+
+            if (dateSheduleFinish >= dateCurrentFinish) {
+                return {
+                    bool: true,
+                    situation: "1"
+                }
+            } else {
+                return {
+                    bool: true,
+                    situation: "2"
+                }
+            }
+        } catch (erro) {
+            return false;
+        }
+    }
+
     save = async () => {
         try {
             /** Verifica se todos os campos estão vazios **/
-            if (this.state.name == "" || this.state.date == "" || this.state.time == "" || this.state.situation == "" || this.state.description == "") {
+            if (this.state.name == "" || this.state.date == "" || this.state.time == "" || this.state.description == "") {
                 alert("Preencha todos os campos!");
                 Keyboard.dismiss();
                 return;
@@ -122,7 +151,16 @@ export default class Assignment extends  Component {
             /* Valida a data e a hora */
             let checkDateTime = this.checkDateTime(this.state.date, this.state.time);
 
+            var checkDateSituation = false;
             if (checkDateTime === true) {
+                let resultCheck = this.checkDateSituation(this.state.date);
+                if (resultCheck.bool === true) {
+                    checkDateSituation = resultCheck.bool;
+                    this.setState({ situation: resultCheck.situation });
+                }
+            }
+
+            if (checkDateSituation === true) {
                 /** Busca os dados que estão armazenados em storage local **/
                 let search = await AsyncStorage.getItem("tarefa");
                             
@@ -147,7 +185,7 @@ export default class Assignment extends  Component {
                     this.setState({ name: "" });
                     this.setState({ date: "" });
                     this.setState({ time: "" });
-                    this.setState({ situation: null });
+                    this.setState({ situation: "" });
                     this.setState({ description: "" });
 
                     Keyboard.dismiss();
@@ -157,10 +195,12 @@ export default class Assignment extends  Component {
                     alert("Ops! Não foi possível cadastrar seus dados.");
                     console.log(result);   
                 }
-            }
-
-            
+            } else {
+                alert("Desculpe! Houve um erro.");
+                return;
+            }            
         } catch (error) {
+            alert("Desculpe! Houve um erro.");
             console.log(error);
             return;
         }   
@@ -200,26 +240,6 @@ export default class Assignment extends  Component {
                                 this.setState({time: text})
                             }} 
                         />
-                        <View 
-                            style={styles.formSelect} 
-                        >
-                            <Select 
-                                style={pickerSelectStyles} 
-                                placeholder={{
-                                    label: 'Selecione a situação',
-                                    value: null,
-                                }} 
-                                
-                                items={[
-                                    { label: "Aberto", value: "1" },
-                                    { label: "Fechado", value: "2" },
-                                    { label: "Cancelado", value: "3" }
-                                ]} 
-                                onValueChange={(option) => this.setState({situation: option})} 
-                                value={this.state.situation}
-                            />
-                        </View>
-                        
                         <TextInput style={styles.formTextearea} placeholder="Descrição" multiline onChangeText={(text) => this.setState({description: text})} value={this.state.description} /> 
                         <TouchableOpacity style={styles.formButton} onPress={this.save}>
                             <Text style={styles.formButtonText}>Salvar</Text>
@@ -282,36 +302,5 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: "#FFF", 
         fontWeight: "bold"
-    },
-    formSelect: {
-        backgroundColor: "#FFF",
-        borderWidth: 1,
-        borderColor: "grey",
-        height: 50,
-        borderRadius: 15,
-        marginVertical: 10
-    }
-});
-
-const pickerSelectStyles = StyleSheet.create({
-    inputIOS: {
-      fontSize: 16,
-      paddingVertical: 12,
-      paddingHorizontal: 10,
-      borderWidth: 1,
-      borderColor: 'gray',
-      borderRadius: 4,
-      color: 'black',
-      paddingRight: 30, 
-    },
-    inputAndroid: {
-      fontSize: 16,
-      paddingHorizontal: 10,
-      paddingVertical: 8,
-      borderWidth: 0.5,
-      borderColor: 'grey',
-      borderRadius: 8,
-      color: 'black',
-      paddingRight: 30, 
     }
 });

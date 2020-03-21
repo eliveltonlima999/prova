@@ -126,7 +126,6 @@ export default class Home extends Component {
                             { label: "Todos", value: "0" },
                             { label: "Aberto", value: "1" },
                             { label: "Fechado", value: "2" },
-                            { label: "Cancelado", value: "3" },
                         ]} 
                         value={this.state.defaultSituation}
                         onValueChange={(option) => {
