@@ -11,7 +11,7 @@ export default class Home extends Component {
         this.loadAssignment();
     }
 
-    componentWillUpdate(nextProps, nextState) {
+    componentDidUpdate() {
         this.loadAssignment(); 
     }
 
@@ -31,23 +31,31 @@ export default class Home extends Component {
             console.log(erro);
         }
     
-        // console.log(this.state);
-        
-        // AsyncStorage.getAllKeys((err, keys) => {
-        //     AsyncStorage.multiGet(keys, (err, stores) => {
-                // stores.map((result, i, store) => {
-                    // console.log(stores);
-                // });
-        //     });
-        // });
+        /** Trecho para lembrança quando necessário =)
+            AsyncStorage.getAllKeys((err, keys) => {
+                AsyncStorage.multiGet(keys, (err, stores) => {
+                    stores.map((result, i, store) => {
+                        console.log(stores);
+                    });
+                });
+            });
+        **/
     }
 
     checkSituation = (date) => {
-        let newDate = date.replace(/[^\w\-]+/g, '-');
-        let dateFinish = newDate.split('').reverse().join('');
+        /** Esta função faz uma verificação da data do agendamento 
+            para dar uma situação para a tarefa.
+        **/
+        let newDate = date.split('/');
+        let dateFinish = new Date(newDate[2], newDate[1] - 1, newDate[0]);
 
-        let situation = new Date(dateFinish).getTime() >= new Date().getTime() ? "Aberto": "Fechado"
+        let year = new Date().getFullYear();
+        let month = new Date().getMonth();
+        let day = new Date().getDate();
+        let today = new Date(year, month, day);
 
+        let situation = dateFinish < today ? "Fechado": "Aberto"
+        
         return situation;
     }
 
@@ -93,7 +101,7 @@ export default class Home extends Component {
                 <FlatList 
                     contentContainerStyle={styles.list} 
                     data={this.state.assignments} 
-                    keyExtractor={ item => item.name.toString() } 
+                    keyExtractor={ item => item.id.toString() } 
                     renderItem={this.listAssignment} 
                     onEndReached={this.loadAssignment} 
                     onEndReachedThreshold={0.1} 
