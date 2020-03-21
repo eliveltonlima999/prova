@@ -1,17 +1,21 @@
 import React, { Component } from "react";
-import InputMask from "react-native-text-input-mask"
+import InputMask from "react-native-text-input-mask";
+import Select from "react-native-picker-select";
 import AsyncStorage from '@react-native-community/async-storage';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Keyboard, KeyboardAvoidingView } from "react-native";
 
 export default class Assignment extends  Component {
-    createDate = `${new Date().getUTCDate()+"/"+new Date().getUTCMonth()+"/"+new Date().getUTCFullYear()}`;
-    createTime = `${new Date().getHours()+":"+new Date().getMinutes()}`;
+    date = new Date();
+    month = this.date.getUTCMonth() + 1;
+    createDate = `${this.date.getUTCDate()}/${("0"+this.month).slice(-2)}/${this.date.getUTCFullYear()}`;
+    createTime = `${("0"+this.date.getHours()).slice(-2)}:${this.date.getMinutes()}`;
 
     state = {
         id: 0,
         name: "", 
         date: "", 
         time: "", 
+        situation: null,
         createDate: this.createDate,
         createTime: this.createTime,
         description: ""
@@ -109,7 +113,7 @@ export default class Assignment extends  Component {
     save = async () => {
         try {
             /** Verifica se todos os campos estão vazios **/
-            if (this.state.name == "" || this.state.date == "" || this.state.time == "" || this.state.description == "") {
+            if (this.state.name == "" || this.state.date == "" || this.state.time == "" || this.state.situation == "" || this.state.description == "") {
                 alert("Preencha todos os campos!");
                 Keyboard.dismiss();
                 return;
@@ -117,7 +121,7 @@ export default class Assignment extends  Component {
 
             /* Valida a data e a hora */
             let checkDateTime = this.checkDateTime(this.state.date, this.state.time);
-            
+
             if (checkDateTime === true) {
                 /** Busca os dados que estão armazenados em storage local **/
                 let search = await AsyncStorage.getItem("tarefa");
@@ -140,10 +144,11 @@ export default class Assignment extends  Component {
                 */
                 if (result == null) {
                     this.setState({ id: this.state.id + 1 });
-                    this.setState({ name: ""});
-                    this.setState({ date: ""});
-                    this.setState({ time: ""});
-                    this.setState({ description: ""});
+                    this.setState({ name: "" });
+                    this.setState({ date: "" });
+                    this.setState({ time: "" });
+                    this.setState({ situation: null });
+                    this.setState({ description: "" });
 
                     Keyboard.dismiss();
                     
@@ -195,6 +200,26 @@ export default class Assignment extends  Component {
                                 this.setState({time: text})
                             }} 
                         />
+                        <View 
+                            style={styles.formSelect} 
+                        >
+                            <Select 
+                                style={pickerSelectStyles} 
+                                placeholder={{
+                                    label: 'Selecione a situação',
+                                    value: null,
+                                }} 
+                                
+                                items={[
+                                    { label: "Aberto", value: "1" },
+                                    { label: "Fechado", value: "2" },
+                                    { label: "Cancelado", value: "3" }
+                                ]} 
+                                onValueChange={(option) => this.setState({situation: option})} 
+                                value={this.state.situation}
+                            />
+                        </View>
+                        
                         <TextInput style={styles.formTextearea} placeholder="Descrição" multiline onChangeText={(text) => this.setState({description: text})} value={this.state.description} /> 
                         <TouchableOpacity style={styles.formButton} onPress={this.save}>
                             <Text style={styles.formButtonText}>Salvar</Text>
@@ -257,5 +282,36 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: "#FFF", 
         fontWeight: "bold"
+    },
+    formSelect: {
+        backgroundColor: "#FFF",
+        borderWidth: 1,
+        borderColor: "grey",
+        height: 50,
+        borderRadius: 15,
+        marginVertical: 10
+    }
+});
+
+const pickerSelectStyles = StyleSheet.create({
+    inputIOS: {
+      fontSize: 16,
+      paddingVertical: 12,
+      paddingHorizontal: 10,
+      borderWidth: 1,
+      borderColor: 'gray',
+      borderRadius: 4,
+      color: 'black',
+      paddingRight: 30, 
+    },
+    inputAndroid: {
+      fontSize: 16,
+      paddingHorizontal: 10,
+      paddingVertical: 8,
+      borderWidth: 0.5,
+      borderColor: 'grey',
+      borderRadius: 8,
+      color: 'black',
+      paddingRight: 30, 
     }
 });

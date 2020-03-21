@@ -1,10 +1,12 @@
 import React, { Component } from "react";
+import Select from "react-native-picker-select";
 import AsyncStorage from '@react-native-community/async-storage';
 import { View, Text, StyleSheet, FlatList } from "react-native";
 
 export default class Home extends Component {
     state = {
-        assignments: []
+        assignments: [],
+        defaultSituation: null
     };
 
     componentDidMount() {
@@ -15,12 +17,29 @@ export default class Home extends Component {
         this.loadAssignment(); 
     }
 
+    search = (data, situation) => {
+        var result = [];
+        data.map((value, index) => {
+            if (value.situation == situation) {
+                result = [...result, value]
+            }    
+        });
+        return result;
+    }
+
     loadAssignment = async () => {
         try {
             let result = await AsyncStorage.getItem("tarefa");
             if (result !== null) {
+                var search = null
+                if (this.state.defaultSituation === null || this.state.defaultSituation === "0") {
+                    search = JSON.parse(result)
+                } else {
+                    search = this.search(JSON.parse(result), this.state.defaultSituation);
+                }
+
                 this.setState({
-                    assignments: JSON.parse(result)
+                    assignments: search
                 });
             } else {
                 this.setState({
@@ -30,7 +49,7 @@ export default class Home extends Component {
         } catch (erro) {
             console.log(erro);
         }
-    
+
         /** Trecho para lembrança quando necessário =)
             AsyncStorage.getAllKeys((err, keys) => {
                 AsyncStorage.multiGet(keys, (err, stores) => {
@@ -42,21 +61,18 @@ export default class Home extends Component {
         **/
     }
 
-    checkSituation = (date) => {
-        /** Esta função faz uma verificação da data do agendamento 
-            para dar uma situação para a tarefa.
+    checkSituation = (situation) => {
+        /** Esta função faz uma verificação da do tipo de situação
+            para litar o nome correto da situação.
         **/
-        let newDate = date.split('/');
-        let dateFinish = new Date(newDate[2], newDate[1] - 1, newDate[0]);
-
-        let year = new Date().getFullYear();
-        let month = new Date().getMonth();
-        let day = new Date().getDate();
-        let today = new Date(year, month, day);
-
-        let situation = dateFinish < today ? "Fechado": "Aberto"
-        
-        return situation;
+        switch(situation) {
+            case "1":
+                return "Aberto";
+            case "2":
+                return "Fechado";
+            case "3":
+                return "Cancelado";
+        }
     }
 
     listAssignment = ({ item }) => (
@@ -75,7 +91,7 @@ export default class Home extends Component {
             <Text>
                 <Text style={styles.item}>Situação: </Text> 
                 { 
-                    this.checkSituation(item.date)
+                    this.checkSituation(item.situation)
                 }
             </Text>
             <Text style={styles.item}>
@@ -98,6 +114,26 @@ export default class Home extends Component {
     render() {
         return(
             <View style={styles.container}>
+                <View style={styles.containerSelect}>
+                    <Select 
+                        placeholder={{
+                            label: 'Selecine o filtro de pesquisa por situação',
+                            value: null,
+                        }} 
+                        style={pickerSelectStyles} 
+                        useNativeAndroidPickerStyle={false} 
+                        items={[
+                            { label: "Todos", value: "0" },
+                            { label: "Aberto", value: "1" },
+                            { label: "Fechado", value: "2" },
+                            { label: "Cancelado", value: "3" },
+                        ]} 
+                        value={this.state.defaultSituation}
+                        onValueChange={(option) => {
+                            this.setState({ defaultSituation: option })
+                        }}
+                    />
+                </View>
                 <FlatList 
                     contentContainerStyle={styles.list} 
                     data={this.state.assignments} 
@@ -149,5 +185,35 @@ const styles = StyleSheet.create({
     },
     textInit: {
         fontSize: 20
+    },
+    containerSelect: {
+        backgroundColor: "#FFF",
+        borderWidth: 1,
+        borderColor: "#DDD",
+        padding: 20,
+        marginBottom: 5
+    }
+});
+
+const pickerSelectStyles = StyleSheet.create({
+    inputIOS: {
+      fontSize: 16,
+      paddingVertical: 12,
+      paddingHorizontal: 10,
+      borderWidth: 1,
+      borderColor: 'gray',
+      borderRadius: 4,
+      color: 'black',
+      paddingRight: 30, 
+    },
+    inputAndroid: {
+      fontSize: 16,
+      paddingHorizontal: 10,
+      paddingVertical: 8,
+      borderWidth: 0.5,
+      borderColor: 'grey',
+      borderRadius: 8,
+      color: 'black',
+      paddingRight: 30, 
     }
 });
