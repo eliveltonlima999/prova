@@ -221,26 +221,37 @@ export default class Assignment extends  Component {
                         Cadastro de Tarefa
                     </Text>
                     <>
-                        <TextInput style={styles.formInputs} placeholder="Nome" onChangeText={(text) => this.setState({name: text})} value={this.state.name} />
+                        <TextInput 
+                            style={styles.formInputs} 
+                            placeholder="Nome" 
+                            onChangeText={(text) => this.setState({name: text})} 
+                            value={this.state.name} 
+                        />
                         <InputMask 
-                            placeholder="Data"
+                            placeholder="Data" 
                             style={styles.formInputs} 
                             mask={"[00]/[00]/[0000]"} 
-                            value={this.state.date}
+                            value={this.state.date} 
                             onChangeText={(text) => {
                                 this.setState({ date: text });
-                            }}
+                            }} 
                         />
                         <InputMask 
                             placeholder="Hora" 
                             style={styles.formInputs} 
                             mask={"[00]:[00]"} 
-                            value={this.state.time}
+                            value={this.state.time} 
                             onChangeText={(text) => {
                                 this.setState({time: text})
                             }} 
                         />
-                        <TextInput style={styles.formTextearea} placeholder="Descrição" multiline onChangeText={(text) => this.setState({description: text})} value={this.state.description} /> 
+                        <TextInput 
+                            style={styles.formTextearea} 
+                            placeholder="Descrição" 
+                            multiline 
+                            onChangeText={(text) => this.setState({description: text})} 
+                            value={this.state.description} 
+                        /> 
                         <TouchableOpacity style={styles.formButton} onPress={this.save}>
                             <Text style={styles.formButtonText}>Salvar</Text>
                         </TouchableOpacity>
