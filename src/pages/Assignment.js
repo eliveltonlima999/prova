@@ -259,17 +259,23 @@ const styles = StyleSheet.create({
     form: {
         marginTop: 20,
         backgroundColor: "#FFF",
-        borderWidth: 1,
-        borderColor: "#DDD",
-        borderRadius: 5,
+        borderRadius: 4,
         padding: 20,
-        marginHorizontal: 20
+        marginHorizontal: 10,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.22,
+        shadowRadius: 2.22,
+        elevation: 3,
     },
     formTitle: {
         fontSize: 25,
         textAlign: "center",
         padding: 5,
-        height: 90
+        height: 55
     },
     formInputs: {
         height: 50,

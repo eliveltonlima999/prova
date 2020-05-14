@@ -153,15 +153,21 @@ const styles = StyleSheet.create({
         backgroundColor: "#fafafa",
     },
     list: {
-        padding: 20
+        padding: 10
     },
     listContainer: {
         backgroundColor: "#FFF",
-        borderWidth: 1,
-        borderColor: "#DDD",
-        borderRadius: 5,
+        borderRadius: 4,
         padding: 20,
-        marginBottom: 10
+        marginBottom: 10,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.22,
+        shadowRadius: 2.22,
+        elevation: 3,
     },
     name: {
         fontSize: 18,
